@@ -3,6 +3,9 @@ import { Hero, Publisher } from '../../interfaces/heroes.interface';
 import { HeroesService } from '../../services/heroes.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from "rxjs/operators";
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmComponent } from '../../components/confirm/confirm.component';
 
 @Component({
   selector: 'app-add',
@@ -38,7 +41,9 @@ export class AddComponent implements OnInit {
   constructor(
     private heroesService: HeroesService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -51,6 +56,29 @@ export class AddComponent implements OnInit {
       ).subscribe(hero => this.hero = hero);
     
   }
+
+  delete() {
+    const dialog = this.dialog.open(ConfirmComponent, {
+      width: '250px',
+      data: { ...this.hero },
+    });
+
+    dialog.afterClosed().subscribe(res => {
+      if (res) {
+        this.heroesService.deleteHero(this.hero.id!)
+          .subscribe(resp => {
+            this.router.navigate(['/heroes']);
+          });
+      }
+    });
+    
+  }
+
+  showSnackBar(message: string): void{
+    this.snackBar.open(message, 'Close', {
+      duration: 2500
+    })
+  }
   
   save() {
     if (this.hero.superhero.trim().length < 1) {
@@ -61,11 +89,13 @@ export class AddComponent implements OnInit {
       this.heroesService.updateHero(this.hero)
         .subscribe(updatedHero => {
           this.router.navigate(['/heroes', updatedHero.id]);
+          this.showSnackBar('Hero Updated Successfully');
         });
     } else {
       this.heroesService.addHero(this.hero)
         .subscribe(newHero => {
-          this.router.navigate(['/heroes/edit', newHero.id])
+          this.router.navigate(['/heroes/edit', newHero.id]);
+          this.showSnackBar('Hero Created Successfully');
         });
     }
   }
