@@ -5,19 +5,22 @@ import { Hero } from '../interfaces/heroes.interface';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HeroesService {
-
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getHeroes(): Observable<Hero[]> {
     return this.http.get<Hero[]>(`${this.baseUrl}/heroes`);
   }
 
-  getHeroById(id: number): Observable<Hero>{
+  getHeroById(id: string): Observable<Hero> {
     return this.http.get<Hero>(`${this.baseUrl}/heroes/${id}`);
+  }
+
+  getSuggestions(term: string): Observable<Hero[]> {
+    return this.http.get<Hero[]>(`${this.baseUrl}/heroes?q=${term}&limit=5`);
   }
 }
