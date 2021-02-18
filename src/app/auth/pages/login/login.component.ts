@@ -20,7 +20,6 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.authService.login().subscribe(resp => { 
-      console.log(resp);
       if (resp.id) {
         this.router.navigate(['./heroes']);
       }
